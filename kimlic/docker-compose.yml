@@ -1,0 +1,88 @@
+version: '2'
+
+networks:
+  vpcbr:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.50.0.0/16
+          gateway: 10.50.0.1
+services:
+  bootnode:
+    container_name: bootnode
+    image: syneblock/quorum
+    environment:
+      - BOOTNODE_IP=bootnode
+    working_dir: /bootnode
+    command: ["bash" , "start_bootnode.sh"]
+    volumes:
+      - ./bootnode:/bootnode        
+    networks:
+      vpcbr:
+        ipv4_address: 10.50.0.2
+  kimlic1:
+    container_name: kimlic1
+    image: syneblock/quorum
+    environment:
+      - CORE_kimlic1_NETWORKID=kimlic1
+      - CORE_NODE_IP=kimlic1
+      - CORE_MASTERNODE_IP=kimlic1 
+      - CORE_BOOTNODE=bootnode
+      - CORE_BOOTNODE_LISTENPORT=33445
+    working_dir: /kimlic1
+    command: ["bash" , "start_node.sh"]
+    links: 
+      - bootnode:bootnode
+    volumes:
+      - ./kimlic1:/kimlic1
+    ports:
+      - 22000:22000
+    depends_on:
+      - bootnode
+    networks:
+      vpcbr:
+        ipv4_address: 10.50.0.4
+  kimlic2:
+    container_name: kimlic2
+    image: syneblock/quorum
+    environment:
+      - CORE_kimlic2_NETWORKID=kimlic2
+      - CORE_NODE_IP=kimlic2
+      - CORE_MASTERNODE_IP=kimlic1 
+      - CORE_BOOTNODE=bootnode
+      - CORE_BOOTNODE_LISTENPORT=33445
+    working_dir: /kimlic2
+    command: ["bash" , "start_node.sh"]
+    links: 
+      - bootnode:bootnode
+    volumes:
+      - ./kimlic2:/kimlic2
+    ports:
+      - 22001:22000
+    depends_on:
+      - bootnode
+    networks:
+      vpcbr:
+        ipv4_address: 10.50.0.5
+  kimlic3:
+    container_name: kimlic3
+    image: syneblock/quorum
+    environment:
+      - CORE_kimlic3_NETWORKID=kimlic3
+      - CORE_NODE_IP=kimlic3
+      - CORE_MASTERNODE_IP=kimlic1 
+      - CORE_BOOTNODE=bootnode
+      - CORE_BOOTNODE_LISTENPORT=33445
+    working_dir: /kimlic3
+    command: ["bash" , "start_node.sh"]
+    links: 
+      - bootnode:bootnode
+    volumes:
+      - ./kimlic3:/kimlic3
+    ports:
+      - 22002:22000
+    depends_on:
+      - bootnode
+    networks:
+      vpcbr:
+        ipv4_address: 10.50.0.6
