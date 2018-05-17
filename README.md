@@ -1,153 +1,95 @@
-# Quorum Maker
+# Steps to run Quorum nodes:
+1. Download files from repository.
 
-Synechron's Quorum Maker is a tool that allows users to pre-configure the nodes that are needed to build a Quorum network. Quorum supports multiple consensus algorithm and different roles for node. Manually editing  configuration files and creating nodes can be a tedious and error-prone process. Quorum Maker can create several nodes of various configurations dynamically with no or limited user input. This provides a wizard-like interface with a series of questions to guide the user when creating nodes. Quorum Maker can create nodes to run with docker-compose for easy use in development environments or nodes to be distributed on separate Linux boxes or cloud instances for a production environment. It also provides Vagrant scripts to spin up Ubuntu instances on Windows/Mac. 
+**Attention! If you want only run test project with docker files you may skip 2nd and 3td positions. Test project is in "kimlic" folder.**
 
-
-Synechron's Quorum Maker has a two-step user process;
-
- - Creating the node configurations
- - Setting up nodes on different machines or containers
-
-> Note: Quorum Maker is tested only on Ubuntu 16.04 and 17.04. Other Debian variants may work with slight changes to script. If you are using a Windows/Mac, please scroll bottom for the instructions to spin up an Ubuntu 16.04 with Vagrant and VirtualBox. After connecting the vagrant box, please follow below instructions.
-
-# Creating the node configuration for Development use
-*The only prerequisite for Quorum Maker is Ubuntu 16.04. The script can automatically install docker and docker-compose if not available. The rest of the tools required to run Quorum Maker are available in the docker image.*
-
-![Screenshot](https://github.com/synechron-finlabs/quorum-maker/blob/development/img/screenshot_dev.png) 
-
-Run `./setup.sh` to start the configuration wizard. The script will ask a series of questions to guide through the node configuration.
-
-> Note: Please use bash script variable naming conventions to name the project and nodes. E.g. avoid names that start with digits or use hyphens `-` to separate words.
-
- 1. **Docker-Compose Support**
-     Answer yes or y to create nodes to work with docker-compose. This is the easiest way to set up nodes if you are  experimenting with Quorum or planning to use Quorum only for local development. 
- 2. **Project Name**
-     Give a name to the project like five_nodes, sample_project etc. 
- 3. **Start Port Number**
-     This is the RPC port to send transactions. Each node you would create will have a port sequentially incremented, starting with the number provided in response to this question. Eg. first node will have 22000, the second will have 22001 and so on. 
- 4. **Node name**
-     Name the first node and this question would repeat for as many nodes as you create. Please make sure to give unique names to all nodes.     
- 5. **Private Keys**
-     Ethereum requires private and public keys for accounts. This step will prompt for passwords for securing the keys. This is optional but strongly recommended in production usage.
- 6. **Block Maker Node**
-     Answer yes if you wish to make this node a block maker or No otherwise. Please make sure to have at least one block maker in the setup.
- 7. **Only Block Maker**
- Quorum uses random timeouts between block makers to avoid conflicts in block creation. If there is only one block maker in the network, timeout can be avoided and the block can be immediately created. 
- 8. **Voter Node**
- Answer yes if you wish to make this node a voter or No otherwise. Please make sure to have at least one voter in the setup.
- 9. **Add more Nodes**
- As many nodes as required can be configured by repeating the above steps and by answering Yes to this question. Once answered No to this question, the script will exit, and a directory with the project name will be created on the current directory. 
-
-# Running the nodes for Development
-The directory generated with the project name has a docker-compose.yml and all the configuration files required to spin up the nodes. 
-
-![Screenshot](https://github.com/synechron-finlabs/quorum-maker/blob/development/img/screenshot_dev_output.png) 
-
-1. Run `docker-compose up` to start the nodes.
-2. You will see the status as each node starts up. The first one to start is the boot node, and the rest of the nodes follow.
-3. Once you see all `Starting <node name>`, the network is ready to be used. As of now, there wouldn't be a status saying all nodes are up. 
-4. The RPC ports are exposed to your host machine. You can send transactions to each node using Web3 or other Qourum supported clients at `http://localhost:<port>/`. Ports are consecutively assigned to each nodes. Use the port starting with the one answered in the question 3 during the node creation. 
-5. Use the constallation keys listed during node creation for privateFor transactions.
-6. If you wish to connect to any node, run `docker exec -it <node name> bash` and run `geth attach qdata/geth.ipc`
-7. The logs can be found on `<node name>/qdata/logs` directory.
-8. Press `Ctrl C` to stop the network and `docker-compose down` to remove containers.
-
-# Raft Consensus Support
-
-Raft is the new consensus from Quorum and is supported in Qourum Maker. After the starting the network with `docker-compose up`, open a new terminal and change to the project directory. Run `sudo ./switch_consensus.sh`. This will automatically change the `--raft` flag and generate `static-nodes.json` by connecting to each node and fetching the endoe information. Restart the network by `Ctrl + C` and `docker-compose up`.
-
-# Creating the node configuration for multi box or cloud use
-*The only prerequisite for Quorum Maker is Ubuntu 16.04. The script can automatically install docker and docker-compose if not available. Rest of the tools required to run quorum maker is available in the docker image*
-
-![Screenshot](https://github.com/synechron-finlabs/quorum-maker/blob/development/img/screenshot_prod.png) 
-
-Run `./setup.sh` to start the configuration wizard. The script will ask a series of questions to guide through the node configuration.
-
-> Note: Please use bash script variable naming conventions to name the project and nodes. E.g. avoid starting the names with digits or using hyphen `-` to separate words.
-
- 1. **Docker-Compose Support**
-     Answer no or n to create nodes to be created in a production-like environment. This is an easiest way to set up nodes, if you want to deploy nodes to multiple boxes or cloud instances. 
- 2. **Project Name**
-     Give a name to the project like five_nodes, sample_project etc.
- 3. **Node name**
-     Name the first node, and this question will repeat for as many nodes as you create. Please make sure to give unique names to each node.     
- 4. **Private Keys**
-     Ethereum requires private and public keys for accounts. This step will prompt for passwords for securing the keys. This is optional but strongly recommended in production usage.
- 5. **Block Maker Node**
-     Answer yes if you wish to make this node a block maker or No otherwise. Please make sure to have at least one block maker in the setup.
- 6. **Only Block Maker**
- Quorum uses random timeouts between block makers to avoid conflicts in block creation. If there is only one block maker in the network, timeout can be avoided and a block can be immediately created. 
- 7. **Voter Node**
- Answer yes if you wish to make this node a voter or No otherwise. Please make sure to have at least one voter in the setup.
- 8. **Add more Nodes**
- As many nodes as required can be configured by repeating the above steps by answering Yes to this question. Once No is provided as a response, the script will exit and a directory with the project name will be created on the current directory. 
-
-# Running nodes for Production-like environments
-The directory generated with the project name has all the nodes zipped to separate files. Distribute these to target boxes or cloud instances and unzip them to use the nodes. 
-![Screenshot](https://github.com/synechron-finlabs/quorum-maker/blob/development/img/screenshot_prod_output.png) 
-
-> Note: Target boxes or cloud instances should be running on Ubuntu 16.04 or higher. 
-> Important Note: The first node created is the master node in the network with bootnode and master constallation node. This needs to be started before ohter nodes.
-
-**Running the master node**
-
-![Screenshot](https://github.com/synechron-finlabs/quorum-maker/blob/development/img/screenshot_prod_start_master.png) 
-
-1. Unzip the node
-2. Run `./start.sh`
-3. Enter this node's IP. Use the external IP of this box or instance, if the nodes are in a different network.
-4. Enter this node's RPC Port. 
-5. Enter this node's Network Listening Port.
-6. Enter this node's Constellation Port.
-7. Enter the Bootnode Port.
-8. The node will be started and a docker container hash will be returned. 
-
-**Running other nodes**
-
-![Screenshot](https://github.com/synechron-finlabs/quorum-maker/blob/development/img/screenshot_prod_start_slave.png) 
-
-1. Unzip the node
-2. Run `./start.sh`
-3. Enter this node's IP. Use the external IP of this box or instance, if the nodes are in different network.
-4. Enter this node's RPC Port. 
-5. Enter this node's Network Listening Port.
-6. Enter this node's Constellation Port.
-7. Enter main node IP Address. This is the IP of the master node started in the previous section.
-8. Enter bootnode port. This is the port of the Bootnode started in the previous section.
-9. Enter main constellation node port. This is the port of the constellation node started in the previous section.
-8. The node will be started and a docker container hash will be returned. 
-
-**Special Feature**
-
-The parameters entered while starting the nodes are automatically saved to a configuration file. So the second time onwards no parameters are required to be entered. The default configuration file is setup.conf. To follow is a sample setup.conf
+2. Install docker ce and docker-compose. Instructions you may find on official site docker.com
+   
+```
+   Hint:
+   In my case after doing steps from instructions on docker.com i have error "Unable to locate package `docker-ce`"
+   Solution - use instructions from best anwer here:
+   https://unix.stackexchange.com/questions/363048/unable-to-locate-package-docker-ce-on-a-64bit-ubuntu?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+   They looks like the same but after using them docker realy installing.
+```
+3. Open script location in terminal and run script ('sudo ./setup.sh').
 
 ```
-CURRENT_IP=52.134.197.136
-RPC_PORT=3007
-WHISPER_PORT=3451
-CONSTELLATION_PORT=3892
-BOOTNODE_PORT=1089
-MASTER_IP=14.204.225.0
-MASTER_CONSTELLATION_PORT=1047
+Setup:
+"Would you like to use this with docker-compose support?" - yes.
+"Please enter a project name:" - enter your name.
+"Please enter the start port number [Default:22000]:" - you may set your own start port but default is ok.
+"Please enter node name:" - node name.
+"Lock key pair kim1 with password [none]:" and "Lock key pair kim1a with password [none]:" - default is ok.
+"Is this a Block Maker Node?" - you need at least one block maker. 
+*Hint: looks like to create transaction on node it must be block maker or there is must be only one block creater node, but for now im not sure.
+"Is this the only block maker ? [y/N]:" - on your decision.
+"Is this a Voter Node? [y/N]:" - you need at least one voter.
+
+4. Open docker project directory and type "sudo docker-compose up". It must start nodes.
+You may check nodes by sending request to rpc api. Open another terminal and write this command:
+curl -X POST --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":83}' localhost:22001
+*use your port which you provided to installation script. In default case it will be 22000 + index of node. In my case 22000-22002.
 ```
 
-**Post startup**
+![Alt text](/../master/img/kimlic_default_test_env_setup.png "Example")
 
-1. Run `docker ps` and make the instances are up. Check the logs, and make sure startup went well. 
-2. The logs can be found on `<node name>/qdata/logs` directory.
-3. Make sure the nodes are connected to each other successfully. Run `docker exec -it <container id> bash` and Run `geth attach qdata\geth.ipc` to connect to the geth client. Run `admin.peers` inside the geth console, and make sure all the nodes are listed.
-4. The RPC ports are exposed to your host machine. You can send transactions to each node using Web3 or other Qourum-supported clients at `http://localhost:<port>/`. Use the port starting with the one answered in  question 4 during the node startup. 
-5. Use the constellation keys listed during node creation for private transactions.
+# Setup truffle(we need it for quick deploying contract and work with js web3):
+To install truffle you may use this instruction http://www.techtonet.com/how-to-install-and-execute-truffle-on-an-ubuntu-16-04/
+Replace text in file truffle.js in generated truffle project folder:
+
+```js
+module.exports = {
+  networks: {
+    KIM1: {
+      host: "127.0.0.1",
+      port: 22000,
+      network_id: "*",
+      gasPrice: 0,
+      gas: 4612388
+    },
+    KIM2: {
+      host: "127.0.0.1",
+      port: 22001,
+      network_id: "*",
+      gasPrice: 0,
+      gas: 4612388
+    },
+    KIM3: {
+      host: "127.0.0.1",
+      port: 22002,
+      network_id: "*",
+      gasPrice: 0,
+      gas: 4612388
+    }
+  }
+}
+
+```
+
+# Work with Quorum:
+- for now Quorum have 0 price of gas and transaction cost is 0 but account need at least 1 wei to send transaction.
+We can use truffle to send some ether to our account. For this write this commands:
+
+```
+truffle cosole --network KIM3
+```
+You may use any network if they correctly configurated.
+When console opened:
+```
+web3.personal.listAccounts
+```
+For example i have response [ '0x639384d4c163fe8b00396a99190079732e072a25' ]
+```
+web3.eth.sendTransaction({from:"0x639384d4c163fe8b00396a99190079732e072a25", to:"0x18d149f6a2a6ba0dec4ad38af21e984a7e978bd7", value:"0x1"});
+```
+ok in few seconds we will have 1 wei in our account. Then we may send transactions from our account by jsonrpc api.
 
 
-# Windows/Mac Support
+# Private transactions:
+privateFor must be public key of another node(if incorrect request will return "Non-200 status code..."). For other node any getter return 0x even for creator account.
+You may found public key at [docker files location]/[node name]/keys/[node name].pub
 
-Quorum Maker provides Vagrant box for running Quorum on Windows/Mac. Running `vagrant up` will provision a vagrant box with support for Ubuntu 16.04, Docker and Quorum. 
 
-> Tip: Please use Git Bash to run vagrant commands on Windows. Also try to run Git Bash as Administrator to avoid privilege issues. 
-
-> Tip: Vagrant can expose ports to host computer. Please update the Vagrantfile in Quorum Maker as per your port requirements.
-E.g.  
-`Vagrant.configure("2") do |config|`  
-  `config.vm.network "forwarded_port", guest: 80, host: 8080`  
-`end`
+**Readme from script repository**
+https://github.com/synechron-finlabs/quorum-maker/blob/master/README.md
