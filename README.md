@@ -22,15 +22,17 @@ Setup:
 "Please enter node name:" - node name.
 "Lock key pair kim1 with password [none]:" and "Lock key pair kim1a with password [none]:" - default is ok.
 "Is this a Block Maker Node?" - you need at least one block maker. 
-*Hint: looks like to create transaction on node it must be block maker or there is must be only one block creater node, but for now im not sure.
 "Is this the only block maker ? [y/N]:" - on your decision.
 "Is this a Voter Node? [y/N]:" - you need at least one voter.
-
+```
+```
+Hint: looks like to create transaction on node it must be block maker or there is must be only one block creater node, but for now im not sure.
+```
 4. Open docker project directory and type "sudo docker-compose up". It must start nodes.
 You may check nodes by sending request to rpc api. Open another terminal and write this command:
 curl -X POST --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":83}' localhost:22001
 *use your port which you provided to installation script. In default case it will be 22000 + index of node. In my case 22000-22002.
-```
+
 
 ![Alt text](/../master/img/kimlic_default_test_env_setup.png "Example")
 
